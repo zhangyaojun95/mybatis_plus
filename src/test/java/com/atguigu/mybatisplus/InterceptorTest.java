@@ -34,6 +34,30 @@ public class InterceptorTest {
         IPage<User> userIPage = userMapper.selectPageVo(userPage, 6);
         System.out.println(userIPage);
     }
+    
+    @Test
+    void testConcurrentUpdate(){
+        //小李取数据
+        Product p1 = productMapper.selectById(1L);
+        //小王取数据
+        Product p2 = productMapper.selectById(1L);
+        //小李修改 + 50
+        p1.setPrice(p1.getPrice()+50);
+        int result = productMapper.updateById(p1);
+        System.out.println("小李修改的结果:"+result);
+        //小王修改 - 30
+        p2.setPrice(p2.getPrice()-30);
+        int result1 = productMapper.updateById(p2);
+        if (result1 == 0){
+            p2 = productMapper.selectById(1L);
+            p2.setPrice(p2.getPrice() - 30);
+            result1 = productMapper.updateById(p2);
+        }
+        System.out.println("小王修改的结果:"+result1);
+        //老板看价格
+        System.out.println("老板看到的价格:"+productMapper.selectById(1L).getPrice());
+
+    }
 
 
 }
